@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users</title>
+</head>
+<body>
+<h1>Users List</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Surname</th>
+        <th>Age</th>
+        <th>Email</th>
+        <th>Roles</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.username}"></td>
+        <td th:text="${user.surname}"></td>
+        <td th:text="${user.age}"></td>
+        <td th:text="${user.email}"></td>
+        <td th:text="${user.getAllUserRoles()}"></td>
+        <td>
+            <form th:action="@{/admin/edit}" method="post" style="display:inline;">
+                <input type="hidden" name="id" th:value="${user.id}"/>
+                <button type="submit">Edit</button>
+            </form>
+            <form th:action="@{/admin/delete/}" method="post" style="display:inline;">
+                <input type="hidden" name="id" th:value="${user.id}"/>
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<br>
+<br>
+<br>
+<br>
+<form th:action="@{/admin/new/}" method="get" style="display:inline;">
+    <button type="submit">Add new User</button>
+</form>
+<br>
+<br>
+<form th:action="@{/logout}" method="post" style="display:inline;">
+    <button type="submit">LogOut</button>
+</form>
+<br>
+<br>
+<form th:action="@{/user}" method="get" style="display:inline;">
+    <button type="submit">Show my info</button>
+</form>
+</body>
+</html>

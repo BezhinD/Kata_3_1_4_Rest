@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Info</title>
+</head>
+<body>
+<h1>User Information</h1>
+<p>ID: <span th:text="${user.id}"></span></p>
+<p>Name: <span th:text="${user.username}"></span></p>
+<p>Surname: <span th:text="${user.surname}"></span></p>
+<p>Age: <span th:text="${user.age}"></span></p>
+<p>Email: <span th:text="${user.email}"></span></p>
+<p>Role: <span th:text="${user.getAllUserRoles()}"></span></p>
+<br>
+<br>
+<form th:action="@{/logout}" method="post" style="display:inline;">
+    <button type="submit">LogOut</button>
+</form>
+</body>
+</html>
