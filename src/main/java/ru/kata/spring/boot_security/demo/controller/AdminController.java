@@ -21,12 +21,10 @@ import java.util.Set;
 public class AdminController {
 
     private final UserService userService;
-    private final RoleService roleService;
 
     @Autowired
-    public AdminController(UserService userService, RoleService roleService) {
+    public AdminController(UserService userService) {
         this.userService = userService;
-        this.roleService = roleService;
     }
 
     @GetMapping()
@@ -57,7 +55,7 @@ public class AdminController {
     public String update(@ModelAttribute("user") User user,
                          @RequestParam(value = "role", required = false) Set<Role> roleNames,
                          @RequestParam(value = "id") long id) {
-        userService.updateUser(id, userService.updateUser(id, user, roleNames));
+        userService.updateUser(id, user, roleNames);
         return "redirect:/admin/";
     }
 

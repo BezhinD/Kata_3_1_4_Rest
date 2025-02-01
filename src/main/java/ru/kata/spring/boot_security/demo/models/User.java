@@ -28,6 +28,7 @@ public class User implements UserDetails {
     private Long id;
 
     private String username;
+
     private int age;
 
     private String password;
@@ -61,9 +62,7 @@ public class User implements UserDetails {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+
 
     public String getUsername() {
         return username;

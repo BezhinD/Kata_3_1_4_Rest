@@ -1,4 +1,4 @@
-package ru.kata.spring.boot_security.demo.service;
+package ru.kata.spring.boot_security.demo.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
+import ru.kata.spring.boot_security.demo.service.RoleService;
+import ru.kata.spring.boot_security.demo.service.UserService;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.security.Principal;
@@ -44,18 +47,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return user.get();
     }
 
-    @Transactional
+
     @Override
     public List<User> getAllUsers() {
+        if (userRepository.count() == 0) {
+            throw new EntityExistsException("UserRepository is empty");
+        }
         return userRepository.findAll();
     }
 
+    @Transactional
     @Override
     public void saveUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new EntityExistsException("User " + user.getUsername() + " already exists");
+        }
         userRepository.save(user);
 
     }
 
+    @Transactional
     @Override
     public User createUser(User user, Set<Role> roles) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -73,41 +84,38 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User getOne(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new EntityNotFoundException("User " + id + " not found");
+        }
         return userRepository.findById(id).get();
     }
 
     @Transactional
     @Override
-    public void updateUser(Long id, User user) {
-        User userToUpdate = userRepository.findById(id).get();
-        userToUpdate.setUsername(user.getUsername());
-        userToUpdate.setSurname(user.getSurname());
-        userToUpdate.setAge(user.getAge());
-        userToUpdate.setPassword(user.getPassword());
-        userToUpdate.setEmail(user.getEmail());
-        userToUpdate.setRoles(user.getRoles());
-        userRepository.save(userToUpdate);
+    public void updateUser(Long id, User userFromRequest, Set<Role> roles) {
+        User user = getOne(id);
+
+        user.setUsername(userFromRequest.getUsername());
+        user.setSurname(userFromRequest.getSurname());
+        user.setAge(userFromRequest.getAge());
+
+        String newPassword = userFromRequest.getPassword();
+        if (newPassword != null && !newPassword.isEmpty() && !newPassword.equals(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+        }
+
+        user.setEmail(userFromRequest.getEmail());
+        user.setRoles(userFromRequest.getRoles());
+
+        if (roles != null && !roles.isEmpty()) {
+            user.setRoles(new HashSet<>(roles));
+        }
+
+        userRepository.save(user);
     }
 
     @Transactional
-    @Override
-    public User updateUser(Long id, User userFromRequest, Set<Role> roles) {
-        User userToUpdate = getOne(id);
-        String newPassword = userFromRequest.getPassword();
-        if (newPassword != null && !newPassword.isEmpty() && !newPassword.equals(userFromRequest.getPassword())) {
-            userFromRequest.setPassword(passwordEncoder.encode(newPassword));
-
-        } else {
-            userFromRequest.setPassword(userToUpdate.getPassword());
-        }
-        if (roles != null || roles.isEmpty()) {
-            userFromRequest.setRoles(userToUpdate.getRoles());
-        } else {
-            userFromRequest.setRoles(new HashSet<>(roles));
-        }
-        return userFromRequest;
-    }
-
     @Override
     public void delete(Long id) {
         userRepository.deleteById(id);
@@ -118,8 +126,4 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return (User) ((Authentication) principal).getPrincipal();
     }
 
-    @Transactional
-    public Role getRole(String role) {
-        return roleService.findByName(role);
-    }
 }
