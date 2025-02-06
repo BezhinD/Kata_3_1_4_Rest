@@ -1,7 +1,6 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,39 +13,36 @@ import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+import java.security.Principal;
 import java.util.Set;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final UserService userService;
+    final UserService userService;
+    final RoleService roleService;
 
-    @Autowired
-    public AdminController(UserService userService) {
-
+    public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
     @GetMapping()
-    public String getUsers(Model model) {
+    public String getUsers(Model model, Principal principal) {
         model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("user", userService.oneUser(principal));
         return "users";
     }
 
-    @GetMapping("/new/")
-    public String newUser(Model model) {
+    @GetMapping("/new")
+    public String newUser(Model model, Principal principal) {
         model.addAttribute("user", new User());
+        model.addAttribute("user", userService.oneUser(principal));
         return "new";
     }
 
-    @PostMapping("/edit")
-    public String edit(@RequestParam(value = "id") long id, Model model) {
-        model.addAttribute("user", userService.getOne(id));
-        return "adminInfo";
-    }
-
-    @PostMapping("/new/")
+    @PostMapping("/new")
     public String addUser(@ModelAttribute User user, @RequestParam(value = "role") Set<Role> roles) {
         userService.saveUser(userService.createUser(user, roles));
         return "redirect:/admin/";
@@ -60,9 +56,15 @@ public class AdminController {
         return "redirect:/admin/";
     }
 
-    @PostMapping("/delete/")
+    @PostMapping("/delete")
     public String delete(@RequestParam("id") long id) {
         userService.delete(id);
         return "redirect:/admin/";
+    }
+
+    @GetMapping("/user")
+    public String user(Model model, Principal principal) {
+        model.addAttribute("user", userService.oneUser(principal));
+        return "adminInfo";
     }
 }
