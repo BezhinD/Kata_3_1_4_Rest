@@ -24,6 +24,7 @@ public class AdminController {
 
     @Autowired
     public AdminController(UserService userService) {
+
         this.userService = userService;
     }
 
@@ -42,7 +43,7 @@ public class AdminController {
     @PostMapping("/edit")
     public String edit(@RequestParam(value = "id") long id, Model model) {
         model.addAttribute("user", userService.getOne(id));
-        return "edit";
+        return "adminInfo";
     }
 
     @PostMapping("/new/")
