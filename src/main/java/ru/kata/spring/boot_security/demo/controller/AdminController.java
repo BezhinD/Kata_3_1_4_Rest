@@ -1,13 +1,17 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
@@ -16,8 +20,9 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 import java.security.Principal;
 import java.util.Set;
 
-@Controller
-@RequestMapping("/admin")
+@RestController
+@RequestMapping("/api/admin")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
 
     final UserService userService;
@@ -29,42 +34,53 @@ public class AdminController {
     }
 
     @GetMapping()
-    public String getUsers(Model model, Principal principal) {
-        model.addAttribute("users", userService.getAllUsers());
-        model.addAttribute("user", userService.oneUser(principal));
-        return "users";
+    public ResponseEntity<?> getUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/new")
-    public String newUser(Model model, Principal principal) {
-        model.addAttribute("user", new User());
-        model.addAttribute("user", userService.oneUser(principal));
-        return "new";
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable long id) {
+        User user = userService.getOne(id);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
     }
+
 
     @PostMapping("/new")
-    public String addUser(@ModelAttribute User user, @RequestParam(value = "role") Set<Role> roles) {
-        userService.saveUser(userService.createUser(user, roles));
-        return "redirect:/admin/";
+    public ResponseEntity<?> addUser(User user, @RequestParam(value = "role") Set<Role> roles) {
+        User createdUser = userService.createUser(user, roles);
+        userService.saveUser(createdUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-    @PostMapping("/update")
-    public String update(@ModelAttribute("user") User user,
-                         @RequestParam(value = "role", required = false) Set<Role> roleNames,
-                         @RequestParam(value = "id") long id) {
-        userService.updateUser(id, user, roleNames);
-        return "redirect:/admin/";
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> update(@PathVariable long id, User user, @RequestParam(value = "role", required = false) Set<Role> roles) {
+        User updaterUser = userService.updateUser(id, user, roles);
+        if (updaterUser != null) {
+            return ResponseEntity.ok(updaterUser);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
     }
 
-    @PostMapping("/delete")
-    public String delete(@RequestParam("id") long id) {
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable long id) {
         userService.delete(id);
-        return "redirect:/admin/";
+        return ResponseEntity.ok().build();
     }
+
 
     @GetMapping("/user")
-    public String user(Model model, Principal principal) {
-        model.addAttribute("user", userService.oneUser(principal));
-        return "adminInfo";
+    public ResponseEntity<?> getCurrentUser(Principal principal) {
+        User user = userService.oneUser(principal);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
     }
 }

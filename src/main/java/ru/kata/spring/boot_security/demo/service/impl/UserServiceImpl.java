@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Transactional
     @Override
-    public void updateUser(Long id, User userFromRequest, Set<Role> roles) {
+    public User updateUser(Long id, User userFromRequest, Set<Role> roles) {
         User user = getOne(id);
 
         user.setUsername(userFromRequest.getUsername());
@@ -113,6 +113,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         userRepository.save(user);
+        return user;
     }
 
     @Transactional
