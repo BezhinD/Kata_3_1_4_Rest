@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,18 +51,18 @@ public class AdminController {
 
 
     @PostMapping("/new")
-    public ResponseEntity<?> addUser(User user, @RequestParam(value = "role") Set<Role> roles) {
-        User createdUser = userService.createUser(user, roles);
+    public ResponseEntity<?> addUser(@RequestBody User user) {
+        User createdUser = userService.createUser(user, user.getRoles());
         userService.saveUser(createdUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(@PathVariable long id, User user, @RequestParam(value = "role", required = false) Set<Role> roles) {
-        User updaterUser = userService.updateUser(id, user, roles);
-        if (updaterUser != null) {
-            return ResponseEntity.ok(updaterUser);
+    public ResponseEntity<?> update(@PathVariable long id, @RequestBody User user) {
+        User updatedUser = userService.updateUser(id, user, user.getRoles());
+        if (updatedUser != null) {
+            return ResponseEntity.ok(updatedUser);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
@@ -69,8 +70,12 @@ public class AdminController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable long id) {
-        userService.delete(id);
-        return ResponseEntity.ok().build();
+        if (userService.getOne(id) != null) {
+            userService.delete(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
     }
 
 

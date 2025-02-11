@@ -1,10 +1,39 @@
 const apiUrl = '/api/user';
 
 /**
- * Получение данных текущего пользователя из API и отображение на странице
+ * Отображение данных пользователя на странице
+ */
+function displayUserData(user) {
+    document.getElementById('usernamePlaceholder').textContent = user.username || 'N/A';
+    document.getElementById('userRoles').textContent = user.roles
+        ? user.roles.map(role => role.name.startsWith('ROLE_') ? role.name.substring(5) : role.name).join(', ')
+        : 'No roles';
+
+    const tableBody = document.getElementById('userTableBody');
+    tableBody.innerHTML = `
+        <tr>
+            <td>${user.id || 'N/A'}</td>
+            <td>${user.username || 'N/A'}</td>
+            <td>${user.surname || 'N/A'}</td>
+            <td>${user.age || 'N/A'}</td>
+            <td>${user.email || 'N/A'}</td>
+            <td>${user.roles ? user.roles.map(role => role.name.startsWith('ROLE_') ? role.name.substring(5) : role.name).join(', ') : 'No roles'}</td>
+        </tr>
+    `;
+}
+
+/**
+ * Получение данных текущего пользователя из API
  */
 async function fetchCurrentUser() {
     try {
+        // Показываем индикатор загрузки
+        document.getElementById('userTableBody').innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center">Загрузка данных...</td>
+            </tr>
+        `;
+
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
@@ -12,32 +41,18 @@ async function fetchCurrentUser() {
         }
 
         const user = await response.json();
-
-
-        // Отображение имени пользователя и ролей
-        document.getElementById('usernamePlaceholder').textContent = user.username;
-        document.getElementById('userRoles').textContent = user.roles
-            ? user.roles.map(role => role.name.substring(5)).join(', ')
-            : 'No roles';
-
-        // Заполнение таблицы информацией о пользователе
-        const tableBody = document.getElementById('userTableBody');
-        tableBody.innerHTML = `
-            <tr>
-                <td>${user.id}</td>
-                <td>${user.username}</td>
-                <td>${user.surname}</td>
-                <td>${user.age}</td>
-                <td>${user.email}</td>
-                <td>${user.roles ? user.roles.map(role => role.name.substring(5)).join(', ') : 'No roles'}</td>
-            </tr>
-        `;
+        displayUserData(user);
     } catch (error) {
         console.error('Ошибка при получении данных пользователя:', error);
-        document.getElementById('usernamePlaceholder').textContent = 'Error fetching user';
+        document.getElementById('usernamePlaceholder').textContent = 'Ошибка загрузки данных';
         document.getElementById('userRoles').textContent = '';
+        document.getElementById('userTableBody').innerHTML = `
+            <tr>
+                <td colspan="6" class="text-danger">Ошибка загрузки данных пользователя</td>
+            </tr>
+        `;
     }
 }
 
-// Вызов функции для загрузки данных пользователя при загрузке страницы
+// Загрузка данных пользователя при загрузке страницы
 document.addEventListener('DOMContentLoaded', fetchCurrentUser);

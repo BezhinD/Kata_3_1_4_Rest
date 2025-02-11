@@ -124,6 +124,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User oneUser(Principal principal) {
+
         return (User) ((Authentication) principal).getPrincipal();
     }
 
