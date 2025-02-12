@@ -20,7 +20,7 @@ import java.security.Principal;
 
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
 
@@ -37,7 +37,7 @@ public class AdminController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserById(@PathVariable long id) {
         User user = userService.getOne(id);
         if (user != null) {
@@ -48,7 +48,7 @@ public class AdminController {
     }
 
 
-    @PostMapping("/new")
+    @PostMapping("/users")
     public ResponseEntity<?> addUser(@RequestBody User user) {
         User createdUser = userService.createUser(user, user.getRoles());
         userService.saveUser(createdUser);
@@ -56,7 +56,7 @@ public class AdminController {
     }
 
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/users/{id}")
     public ResponseEntity<?> update(@PathVariable long id, @RequestBody User user) {
         User updatedUser = userService.updateUser(id, user, user.getRoles());
         if (updatedUser != null) {
@@ -66,7 +66,7 @@ public class AdminController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/users/{id}")
     public ResponseEntity<?> delete(@PathVariable long id) {
         if (userService.getOne(id) != null) {
             userService.delete(id);
@@ -77,7 +77,7 @@ public class AdminController {
     }
 
 
-    @GetMapping("/user")
+    @GetMapping("/")
     public ResponseEntity<?> getCurrentUser(Principal principal) {
         User user = userService.oneUser(principal);
         if (user != null) {

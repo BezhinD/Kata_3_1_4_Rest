@@ -40,7 +40,7 @@ public class InitializationTable {
         Role roleUser = new Role("ROLE_USER");
         roleRepository.save(roleAdmin);
         roleRepository.save(roleUser);
-        admin.setRoles(Set.of(roleAdmin, roleUser));
+        admin.setRoles(Set.of(roleAdmin));
         userRepository.save(admin);
         user.setRoles(Set.of(roleUser));
         userRepository.save(user);

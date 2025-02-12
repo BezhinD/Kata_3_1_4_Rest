@@ -1,8 +1,8 @@
-const url = '/api/admin'; // Базовый URL API для администрирования пользователей
+const url = '/api'; // Базовый URL API для администрирования пользователей
 
 // Асинхронная функция для получения списка ролей
 async function getRoles() {
-    return fetch("/api/admin/roles")
+    return fetch("/api/roles")
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
@@ -85,7 +85,7 @@ document.getElementById('newUserForm').addEventListener('submit', (e) => {
             rolesAddUser.push({id: role.options[i].value, role: 'ROLE_' + role.options[i].innerHTML});
         }
     }
-    fetch(url + '/users', {
+    fetch(url + {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
@@ -112,7 +112,7 @@ document.getElementById('newUserForm').addEventListener('submit', (e) => {
 
 // Открытие модального окна редактирования
 function editModal(id) {
-    fetch(url + '/users/' + id, {
+    fetch(url  + id, {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json;charset=UTF-8'
@@ -166,7 +166,7 @@ async function editUser() {
         password: passwordValue,
         roles: listOfRole
     };
-    await fetch(url + '/users/' + user.id, {
+    await fetch(url + user.id, {
         method: "PUT",
         headers: {
             'Accept': 'application/json',
@@ -184,7 +184,7 @@ async function editUser() {
 
 // Удаление пользователя
 function deleteModal(id) {
-    fetch(url + '/users/' + id)
+    fetch(url + id)
         .then(res => {
             if (!res.ok) {
                 throw new Error(`Ошибка: ${res.status} ${res.statusText}`);
@@ -212,7 +212,7 @@ function deleteModal(id) {
 // Удаление пользователя после подтверждения
 async function deleteUser() {
     const id = document.getElementById("deleteId").value;
-    let urlDel = url + "/users/" + id;
+    let urlDel = url + id;
     let method = {method: 'DELETE', headers: {"Content-Type": "application/json"}};
     fetch(urlDel, method)
         .then(res => {

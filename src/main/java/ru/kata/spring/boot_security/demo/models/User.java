@@ -33,6 +33,10 @@ public class User implements UserDetails {
 
     private String password;
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     private String surname;
 
     private String email;

@@ -29,8 +29,8 @@
         <div class="col-2 bg-light vh-100">
             <ul class="list-unstyled">
                 <div class="btn-group-vertical" role="group" aria-label="Basic example" style="width: 100%;">
-                    <a sec:authorize="hasRole('ADMIN')" href="api/admin" class="btn btn-light" role="button">Admin</a>
-                    <a href="api/user/" class="btn btn-primary active" role="button"
+                    <a sec:authorize="hasRole('ADMIN')" href="/admin" class="btn btn-light" role="button">Admin</a>
+                    <a href="/user" class="btn btn-primary active" role="button"
                        style="background-color: #007BFF; border-color: #007BFF;">User</a>
                 </div>
             </ul>
@@ -65,9 +65,8 @@
         </div>
     </div>
 </div>
-</div>
 
-<!-- Bootstrap JS -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/userInfo.js"></script>
 </body>

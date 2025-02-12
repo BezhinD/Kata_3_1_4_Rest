@@ -23,16 +23,14 @@ public class UserController {
 
     @Autowired
     public UserController(UserService userService) {
+
         this.userService = userService;
     }
 
-    @GetMapping()
-    public ResponseEntity<?>getUser(Principal principal) {
+     @GetMapping
+    public ResponseEntity<User> showUser(Principal principal) {
         User user = userService.oneUser(principal);
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
 }
