@@ -33,14 +33,18 @@ listRoles();
 // Получение и отображение списка всех пользователей
 function getAllUsers() {
     fetch(url)
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`Ошибка: ${res.status} ${res.statusText}`);
+        .then(response => {
+            console.log('Ответ сервера:', response); // Проверьте ответ
+            if (!response.ok) {
+                throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
             }
-            return res.json();
+            return response.json();
         })
-        .then(data => loadTable(data))
-        .catch(error => console.error('Ошибка при загрузке пользователей:', error));
+        .then(data => {
+            console.log('Данные пользователей:', data); // Проверьте данные
+            loadTable(data);
+        })
+        .catch(error => console.error('Ошибка:', error));
 }
 
 // Отображение данных в таблице
